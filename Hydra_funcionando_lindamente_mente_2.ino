@@ -18,7 +18,7 @@
 #define CURVA      -1
 #define DEBUG       0
 #define DELAY     1000
-#define DELAY_PARADA 300
+#define TEMPO_PARA_PARAR 300
 #define BRANCA      true
 #define PRETA       false
 #define TEMPO_PARA_FINAL           80000 //milissegundos
