@@ -3,17 +3,17 @@
 #define MOTOR_E1    10
 #define MOTOR_E2    9
 #define LED         13
-#define VELOCIDADE_MAXIMA        120
-#define VELOCIDADE_BASE           55
-#define NUMERO_DE_SENSORES        7
-#define TEMPO_PARA_PARAR          300
+#define VELOCIDADE_MAXIMA         254
+#define VELOCIDADE_BASE_RETA      130
+#define VELOCIDADE_BASE_CURVA      55
+#define NUMERO_DE_SENSORES          7
 #define LIMIAR 100
-#define KPR     12     // kp para reta
-#define KDR     300     // kd para reta
-#define KIR     1     // ki para reta
+#define KPR     1.6    // kp para reta
+#define KDR     0      // kd para reta
+#define KIR     0      // ki para reta
 #define KPC     10     // Kp para cruva
-#define KDC     200     // kd para curva
-#define KIC     0.5     // ki para curva
+#define KDC     200    // kd para curva
+#define KIC     0.5    // ki para curva
 #define RETA        1
 #define CURVA      -1
 #define DEBUG       0
@@ -53,7 +53,8 @@ float deltaTime = 0;
 long int ti = 0;
 long int tempo_ultima_marcacao   = 0;
 long int tempo_ultimo_cruzamento = 0; 
-int velocidadeAtual   = VELOCIDADE_BASE;
+int velocidadeAtualReta   = VELOCIDADE_BASE_RETA;
+int velocidadeAtualCurva   = VELOCIDADE_BASE_CURVA;
 int conta = 1;
 int limiar            = 0;
 int tipoDeFinal       =-1;
@@ -109,7 +110,7 @@ void loop() {
     ultimoProcesso = millis();
     
     erro = lerPontoAtual();
-   analizadorDeVerificadores();
+    analizadorDeVerificadores();
     correcao = TipoDeCorrecao(tipo); // editar tipo...
     if(tipo == RETA)
     { 
@@ -234,8 +235,6 @@ void analizadorDeVerificadores()
         tempo_ultima_marcacao = millis();
        }
     }
-    
-    
     else
     { 
      if(conta == ULTIMA_MARCACAO_ESQUERDA){ 
@@ -247,8 +246,7 @@ void analizadorDeVerificadores()
         }
       }
     }
-    }
-    
+   }  
 }
 //Lê os sensores guias e retorna valores maiores que 0 para direita e menor que zero para esquerda
 float lerPontoAtual() {
@@ -304,18 +302,18 @@ float TipoDeCorrecao(int tipo)
 void correcaoCurva(int correcao_curva) {
   if(erro > 0) {
     Serial.println("Erro positivo ");
-    esquerdo = velocidadeAtual + correcao_curva;
-    direito = velocidadeAtual - correcao_curva;
+    esquerdo = velocidadeAtualCurva + correcao_curva;
+    direito = velocidadeAtualCurva - correcao_curva;
   }
   else if(erro < 0) {
     Serial.println("Erro negativo");
-    esquerdo = velocidadeAtual + correcao_curva;
-    direito = velocidadeAtual - correcao_curva;
+    esquerdo = velocidadeAtualCurva + correcao_curva;
+    direito = velocidadeAtualCurva - correcao_curva;
   }
   else {
     Serial.println("Sem erro");  
-    esquerdo = velocidadeAtual;
-    direito = velocidadeAtual;
+    esquerdo = velocidadeAtualCurva;
+    direito = velocidadeAtualCurva;
   }
   motorEsquerdo(esquerdo);
   motorDireito(direito);
@@ -330,19 +328,19 @@ void correcaoCurva(int correcao_curva) {
 void correcaoReta(int correcao_reta) {
   if(erro > 0) {
     Serial.println("Erro positivo");
-    direito  = velocidadeAtual;
-    esquerdo = velocidadeAtual + correcao_reta;
+    direito  = velocidadeAtualReta;
+    esquerdo = velocidadeAtualReta + correcao_reta;
   }
     else if(erro < 0) {
       Serial.println("Erro negativo"); 
-      direito = velocidadeAtual - correcao_reta;    
-      esquerdo = velocidadeAtual;
+      direito = velocidadeAtualReta - correcao_reta;    
+      esquerdo = velocidadeAtualReta;
     }
       else
       {
         Serial.println("Sem erro");  
-        direito = velocidadeAtual;
-        esquerdo = velocidadeAtual;
+        direito = velocidadeAtualReta;
+        esquerdo = velocidadeAtualReta;
       }
   motorEsquerdo(esquerdo);
   motorDireito(direito);
